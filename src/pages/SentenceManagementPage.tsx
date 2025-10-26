@@ -69,7 +69,9 @@ function SentenceManagementPage() {
   const loadTopics = async () => {
     try {
       const response = await topicService.getTopics({ limit: 1000 });
-      // 这里应该更新 topics store，暂时跳过
+      // 更新 topics store
+      const { setTopics } = useTopicStore.getState();
+      setTopics(response.items || response.topics || []);
     } catch (error) {
       console.error('加载主题列表失败:', error);
     }

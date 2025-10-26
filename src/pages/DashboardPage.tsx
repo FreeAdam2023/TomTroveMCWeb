@@ -13,6 +13,8 @@ import {
 } from '@ant-design/icons';
 import StatCard, { StatCardGroup } from '@/components/StatCard';
 import UserGrowthChart from '@/components/UserGrowthChart';
+import TopicRankingChart from '@/components/TopicRankingChart';
+import UserRetentionChart from '@/components/UserRetentionChart';
 import APITestComponent from '@/components/APITest';
 import { useStatisticsStore } from '@/stores';
 import { statisticsService } from '@/services/translationService';
@@ -163,17 +165,14 @@ function DashboardPage() {
           <UserGrowthChart />
         </Col>
         <Col span={12}>
-          <Card title="主题热度排行" style={{ height: 400 }}>
-            <div style={{ 
-              height: 300, 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              color: '#8c8c8c'
-            }}>
-              图表组件待实现
-            </div>
-          </Card>
+          <TopicRankingChart />
+        </Col>
+      </Row>
+
+      {/* 用户留存率图表 */}
+      <Row gutter={16} style={{ marginTop: 24 }}>
+        <Col span={24}>
+          <UserRetentionChart />
         </Col>
       </Row>
 

@@ -62,7 +62,9 @@ function UserManagementPage() {
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserListItem | null>(null);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     loadUsers();
@@ -112,8 +114,48 @@ function UserManagementPage() {
   };
 
   const handleEdit = (user: UserListItem) => {
-    // TODO: 实现编辑用户功能
-    message.info('编辑用户功能待实现');
+    setSelectedUser(user);
+    form.setFieldsValue({
+      displayName: user.displayName,
+      role: user.role,
+      isActive: user.isActive,
+    });
+    setIsEditModalVisible(true);
+  };
+
+  const handleEditModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      
+      if (selectedUser) {
+        const updateData = {
+          displayName: values.displayName,
+          role: values.role,
+          isActive: values.isActive,
+        };
+        
+        await userService.updateUser(selectedUser.id, updateData);
+        
+        // 更新本地状态
+        setUsers(users.map(user => 
+          user.id === selectedUser.id 
+            ? { ...user, ...updateData }
+            : user
+        ));
+        
+        message.success('用户信息更新成功');
+        setIsEditModalVisible(false);
+        form.resetFields();
+      }
+    } catch (error) {
+      message.error('更新用户信息失败');
+      console.error('更新用户信息失败:', error);
+    }
+  };
+
+  const handleEditModalCancel = () => {
+    setIsEditModalVisible(false);
+    form.resetFields();
   };
 
   const getRoleColor = (role: string) => {
@@ -344,6 +386,54 @@ function UserManagementPage() {
             </Descriptions.Item>
           </Descriptions>
         )}
+      </Modal>
+
+      {/* 编辑用户模态框 */}
+      <Modal
+        title="编辑用户"
+        open={isEditModalVisible}
+        onOk={handleEditModalOk}
+        onCancel={handleEditModalCancel}
+        width={500}
+        destroyOnClose
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={{
+            isActive: true,
+          }}
+        >
+          <Form.Item
+            label="显示名称"
+            name="displayName"
+            rules={[{ required: true, message: '请输入显示名称' }]}
+          >
+            <Input placeholder="请输入显示名称" />
+          </Form.Item>
+
+          <Form.Item
+            label="角色"
+            name="role"
+            rules={[{ required: true, message: '请选择角色' }]}
+          >
+            <Select>
+              <Option value="admin">管理员</Option>
+              <Option value="user">普通用户</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="状态"
+            name="isActive"
+            valuePropName="checked"
+          >
+            <Select>
+              <Option value={true}>活跃</Option>
+              <Option value={false}>禁用</Option>
+            </Select>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );
