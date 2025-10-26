@@ -240,3 +240,7 @@ tramp
 
 # Project specific
 # Add any project-specific files or directories to ignore here
+
+# Firebase Service Account (sensitive credentials)
+config/firebase-service-account.json
+*.service-account.json
