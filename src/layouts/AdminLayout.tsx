@@ -12,6 +12,7 @@ import {
   UserOutlined,
   LogoutOutlined,
   SettingOutlined,
+  TeamOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuthStore, useUIStore } from '@/stores';
@@ -52,6 +53,11 @@ const menuItems: MenuProps['items'] = [
     icon: <BarChartOutlined />,
     label: '统计分析',
   },
+  {
+    key: '/admin/users',
+    icon: <TeamOutlined />,
+    label: '用户管理',
+  },
 ];
 
 // 面包屑映射
@@ -62,6 +68,7 @@ const breadcrumbMap: Record<string, string> = {
   '/admin/attempts': '尝试记录',
   '/admin/mistakes': '错题管理',
   '/admin/statistics': '统计分析',
+  '/admin/users': '用户管理',
 };
 
 function AdminLayout() {
@@ -151,6 +158,11 @@ function AdminLayout() {
         style={{
           background: '#fff',
           boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 100,
         }}
       >
         {/* Logo */}
@@ -180,7 +192,10 @@ function AdminLayout() {
         />
       </Sider>
 
-      <Layout>
+      <Layout style={{ 
+        marginLeft: sidebarCollapsed ? 80 : 200,
+        transition: 'margin-left 0.2s',
+      }}>
         {/* 顶部导航栏 */}
         <Header className="admin-header" style={{
           background: '#fff',

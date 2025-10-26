@@ -44,46 +44,57 @@ export interface TopicQueryParams {
 // 翻译句子类型
 export interface Sentence {
   id: string;
-  topicId: string;
-  originalText: string;
-  referenceAnswer: string;
-  hints?: Record<string, string>; // 多语言提示
-  difficulty: 'easy' | 'medium' | 'hard';
+  topic_id: string;
+  original_text: string;
+  expected_translations: string[]; // 后端返回的是数组
+  hints?: {
+    keywords: string[];
+    chinese_hints: string[];
+    english_hints: string[];
+  };
+  difficulty: '初级' | '中级' | '高级'; // 后端使用中文
   order: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  is_active: boolean;
+  created_at: string;
   topic?: Topic; // 关联的主题信息
 }
 
 export interface SentenceCreateRequest {
-  topicId: string;
-  originalText: string;
-  referenceAnswer: string;
-  hints?: Record<string, string>;
-  difficulty: 'easy' | 'medium' | 'hard';
+  topic_id: string;
+  original_text: string;
+  expected_translations: string[];
+  hints?: {
+    keywords: string[];
+    chinese_hints: string[];
+    english_hints: string[];
+  };
+  difficulty: '初级' | '中级' | '高级';
   order?: number;
-  isActive?: boolean;
+  is_active?: boolean;
 }
 
 export interface SentenceUpdateRequest {
-  topicId?: string;
-  originalText?: string;
-  referenceAnswer?: string;
-  hints?: Record<string, string>;
-  difficulty?: 'easy' | 'medium' | 'hard';
+  topic_id?: string;
+  original_text?: string;
+  expected_translations?: string[];
+  hints?: {
+    keywords: string[];
+    chinese_hints: string[];
+    english_hints: string[];
+  };
+  difficulty?: '初级' | '中级' | '高级';
   order?: number;
-  isActive?: boolean;
+  is_active?: boolean;
 }
 
 export interface SentenceQueryParams {
   page?: number;
   limit?: number;
-  topicId?: string;
-  difficulty?: 'easy' | 'medium' | 'hard';
-  isActive?: boolean;
+  topic_id?: string;
+  difficulty?: '初级' | '中级' | '高级';
+  is_active?: boolean;
   search?: string;
-  sortBy?: 'createdAt' | 'order' | 'difficulty';
+  sortBy?: 'created_at' | 'order' | 'difficulty';
   sortOrder?: 'asc' | 'desc';
 }
 
@@ -160,6 +171,13 @@ export interface Statistics {
     totalUsers: number;
     averageScore: number;
     successRate: number;
+    // 用户增长相关统计
+    newUsersToday: number;
+    newUsersThisWeek: number;
+    newUsersThisMonth: number;
+    activeUsersToday: number;
+    activeUsersThisWeek: number;
+    userRetentionRate: number; // 用户留存率
   };
   trends: {
     dailyAttempts: Array<{
@@ -171,6 +189,22 @@ export interface Statistics {
       week: string;
       rate: number;
     }>;
+    // 用户增长趋势
+    dailyUserGrowth: Array<{
+      date: string;
+      newUsers: number;
+      activeUsers: number;
+    }>;
+    weeklyUserGrowth: Array<{
+      week: string;
+      newUsers: number;
+      activeUsers: number;
+    }>;
+    monthlyUserGrowth: Array<{
+      month: string;
+      newUsers: number;
+      activeUsers: number;
+    }>;
   };
   topicStats: Array<{
     topicId: string;
@@ -181,7 +215,7 @@ export interface Statistics {
   }>;
   recentActivity: Array<{
     id: string;
-    type: 'attempt' | 'mistake' | 'topic_created' | 'sentence_created';
+    type: 'attempt' | 'mistake' | 'topic_created' | 'sentence_created' | 'user_registered';
     description: string;
     timestamp: string;
     userId?: string;

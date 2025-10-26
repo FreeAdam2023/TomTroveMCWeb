@@ -82,18 +82,18 @@ function SentenceManagementPage() {
         page,
         limit,
         search: searchText || undefined,
-        topicId: topicFilter === 'all' ? undefined : topicFilter,
+        topic_id: topicFilter === 'all' ? undefined : topicFilter,
         difficulty: difficultyFilter === 'all' ? undefined : difficultyFilter as any,
-        isActive: statusFilter === 'all' ? undefined : statusFilter === 'active',
+        is_active: statusFilter === 'all' ? undefined : statusFilter === 'active',
       };
       
       const response = await sentenceService.getSentences(params);
-      setSentences(response.items);
+      setSentences(response.sentences || response.items);
       setPagination({
         page: response.page,
-        limit: response.limit,
+        limit: response.page_size || response.limit,
         total: response.total,
-        totalPages: response.totalPages,
+        totalPages: Math.ceil(response.total / (response.page_size || response.limit)),
       });
     } catch (error) {
       setError('加载句子列表失败');
@@ -124,13 +124,13 @@ function SentenceManagementPage() {
   const handleEdit = (sentence: Sentence) => {
     setEditingSentence(sentence);
     form.setFieldsValue({
-      topicId: sentence.topicId,
-      originalText: sentence.originalText,
-      referenceAnswer: sentence.referenceAnswer,
+      topic_id: sentence.topic_id,
+      original_text: sentence.original_text,
+      expected_translations: sentence.expected_translations,
       hints: sentence.hints,
       difficulty: sentence.difficulty,
       order: sentence.order,
-      isActive: sentence.isActive,
+      is_active: sentence.is_active,
     });
     setIsModalVisible(true);
   };
@@ -152,13 +152,13 @@ function SentenceManagementPage() {
       if (editingSentence) {
         // 更新句子
         const updateData: SentenceUpdateRequest = {
-          topicId: values.topicId,
-          originalText: values.originalText,
-          referenceAnswer: values.referenceAnswer,
+          topic_id: values.topic_id,
+          original_text: values.original_text,
+          expected_translations: values.expected_translations,
           hints: values.hints,
           difficulty: values.difficulty,
           order: values.order,
-          isActive: values.isActive,
+          is_active: values.is_active,
         };
         
         const updatedSentence = await sentenceService.updateSentence(editingSentence.id, updateData);
@@ -167,13 +167,13 @@ function SentenceManagementPage() {
       } else {
         // 创建句子
         const createData: SentenceCreateRequest = {
-          topicId: values.topicId,
-          originalText: values.originalText,
-          referenceAnswer: values.referenceAnswer,
+          topic_id: values.topic_id,
+          original_text: values.original_text,
+          expected_translations: values.expected_translations,
           hints: values.hints,
           difficulty: values.difficulty,
           order: values.order || 0,
-          isActive: values.isActive ?? true,
+          is_active: values.is_active ?? true,
         };
         
         const newSentence = await sentenceService.createSentence(createData);
@@ -195,18 +195,18 @@ function SentenceManagementPage() {
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'easy': return 'green';
-      case 'medium': return 'orange';
-      case 'hard': return 'red';
+      case '初级': return 'green';
+      case '中级': return 'orange';
+      case '高级': return 'red';
       default: return 'default';
     }
   };
 
   const getDifficultyText = (difficulty: string) => {
     switch (difficulty) {
-      case 'easy': return '简单';
-      case 'medium': return '中等';
-      case 'hard': return '困难';
+      case '初级': return '简单';
+      case '中级': return '中等';
+      case '高级': return '困难';
       default: return difficulty;
     }
   };
@@ -214,8 +214,8 @@ function SentenceManagementPage() {
   const columns: ColumnsType<Sentence> = [
     {
       title: '原文',
-      dataIndex: 'originalText',
-      key: 'originalText',
+      dataIndex: 'original_text',
+      key: 'original_text',
       width: 200,
       render: (text: string) => (
         <div style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -225,12 +225,12 @@ function SentenceManagementPage() {
     },
     {
       title: '参考答案',
-      dataIndex: 'referenceAnswer',
-      key: 'referenceAnswer',
+      dataIndex: 'expected_translations',
+      key: 'expected_translations',
       width: 200,
-      render: (text: string) => (
+      render: (translations: string[]) => (
         <div style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {text}
+          {translations?.[0] || '无'}
         </div>
       ),
     },
@@ -260,8 +260,8 @@ function SentenceManagementPage() {
     },
     {
       title: '状态',
-      dataIndex: 'isActive',
-      key: 'isActive',
+      dataIndex: 'is_active',
+      key: 'is_active',
       width: 80,
       render: (isActive: boolean) => (
         <Tag color={isActive ? 'green' : 'red'}>
@@ -271,8 +271,8 @@ function SentenceManagementPage() {
     },
     {
       title: '创建时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
+      dataIndex: 'created_at',
+      key: 'created_at',
       width: 180,
       render: (date: string) => new Date(date).toLocaleString(),
     },
@@ -340,9 +340,9 @@ function SentenceManagementPage() {
                 style={{ width: 120 }}
               >
                 <Option value="all">全部难度</Option>
-                <Option value="easy">简单</Option>
-                <Option value="medium">中等</Option>
-                <Option value="hard">困难</Option>
+                <Option value="初级">简单</Option>
+                <Option value="中级">中等</Option>
+                <Option value="高级">困难</Option>
               </Select>
               <Select
                 value={statusFilter}
@@ -422,8 +422,8 @@ function SentenceManagementPage() {
           form={form}
           layout="vertical"
           initialValues={{
-            difficulty: 'medium',
-            isActive: true,
+            difficulty: '中级',
+            is_active: true,
             order: 0,
           }}
         >
@@ -431,7 +431,7 @@ function SentenceManagementPage() {
             <Col span={12}>
               <Form.Item
                 label="所属主题"
-                name="topicId"
+                name="topic_id"
                 rules={[{ required: true, message: '请选择主题' }]}
               >
                 <Select placeholder="选择主题">
@@ -450,9 +450,9 @@ function SentenceManagementPage() {
                 rules={[{ required: true, message: '请选择难度' }]}
               >
                 <Select>
-                  <Option value="easy">简单</Option>
-                  <Option value="medium">中等</Option>
-                  <Option value="hard">困难</Option>
+                  <Option value="初级">简单</Option>
+                  <Option value="中级">中等</Option>
+                  <Option value="高级">困难</Option>
                 </Select>
               </Form.Item>
             </Col>
@@ -468,7 +468,7 @@ function SentenceManagementPage() {
 
           <Form.Item
             label="原文"
-            name="originalText"
+            name="original_text"
             rules={[{ required: true, message: '请输入原文' }]}
           >
             <TextArea rows={3} placeholder="请输入原文" />
@@ -476,25 +476,15 @@ function SentenceManagementPage() {
 
           <Form.Item
             label="参考答案"
-            name="referenceAnswer"
+            name="expected_translations"
             rules={[{ required: true, message: '请输入参考答案' }]}
           >
-            <TextArea rows={3} placeholder="请输入参考答案" />
-          </Form.Item>
-
-          <Form.Item
-            label="提示信息"
-            name="hints"
-          >
-            <MultilingualInput
-              placeholder="请输入提示信息"
-              languages={['zh', 'en']}
-            />
+            <TextArea rows={3} placeholder="请输入参考答案，多个答案用换行分隔" />
           </Form.Item>
 
           <Form.Item
             label="状态"
-            name="isActive"
+            name="is_active"
             valuePropName="checked"
           >
             <Select>

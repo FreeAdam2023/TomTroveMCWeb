@@ -9,6 +9,7 @@ import SentenceManagementPage from '@/pages/SentenceManagementPage';
 import AttemptManagementPage from '@/pages/AttemptManagementPage';
 import MistakeManagementPage from '@/pages/MistakeManagementPage';
 import StatisticsPage from '@/pages/StatisticsPage';
+import UserManagementPage from '@/pages/UserManagementPage';
 import { useAuthStore } from '@/stores';
 import authService from '@/services/authService';
 
@@ -113,6 +114,7 @@ function AppRoutes() {
         <Route path="attempts" element={<AttemptManagementPage />} />
         <Route path="mistakes" element={<MistakeManagementPage />} />
         <Route path="statistics" element={<StatisticsPage />} />
+        <Route path="users" element={<UserManagementPage />} />
       </Route>
 
       {/* 默认重定向 */}

@@ -139,6 +139,18 @@ export const statisticsService = {
     api.get('/admin/translation/statistics/recent-activity', { 
       params: { limit } 
     }),
+    
+  // 获取用户增长数据
+  getUserGrowthData: (period: '7d' | '30d' | '90d'): Promise<Statistics['trends']['dailyUserGrowth'] | Statistics['trends']['weeklyUserGrowth'] | Statistics['trends']['monthlyUserGrowth']> =>
+    api.get('/admin/translation/statistics/user-growth', { 
+      params: { period } 
+    }),
+    
+  // 获取用户留存率数据
+  getUserRetentionData: (period: '7d' | '30d' | '90d'): Promise<Array<{ period: string; retentionRate: number }>> =>
+    api.get('/admin/translation/statistics/user-retention', { 
+      params: { period } 
+    }),
 };
 
 // 用户管理 API

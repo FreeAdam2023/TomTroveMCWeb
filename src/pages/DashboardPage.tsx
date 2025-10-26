@@ -7,8 +7,13 @@ import {
   ExclamationCircleOutlined,
   UserOutlined,
   TrophyOutlined,
+  UserAddOutlined,
+  TeamOutlined,
+  RiseOutlined,
 } from '@ant-design/icons';
 import StatCard, { StatCardGroup } from '@/components/StatCard';
+import UserGrowthChart from '@/components/UserGrowthChart';
+import APITestComponent from '@/components/APITest';
 import { useStatisticsStore } from '@/stores';
 import { statisticsService } from '@/services/translationService';
 import type { Statistics } from '@/types';
@@ -97,6 +102,47 @@ function DashboardPage() {
     },
   ] : [];
 
+  const userGrowthCards = statistics ? [
+    {
+      title: '今日新增用户',
+      value: statistics.overview.newUsersToday,
+      icon: <UserAddOutlined />,
+      color: '#1890ff',
+    },
+    {
+      title: '本周新增用户',
+      value: statistics.overview.newUsersThisWeek,
+      icon: <TeamOutlined />,
+      color: '#52c41a',
+    },
+    {
+      title: '本月新增用户',
+      value: statistics.overview.newUsersThisMonth,
+      icon: <RiseOutlined />,
+      color: '#faad14',
+    },
+    {
+      title: '今日活跃用户',
+      value: statistics.overview.activeUsersToday,
+      icon: <UserOutlined />,
+      color: '#722ed1',
+    },
+    {
+      title: '本周活跃用户',
+      value: statistics.overview.activeUsersThisWeek,
+      icon: <TeamOutlined />,
+      color: '#eb2f96',
+    },
+    {
+      title: '用户留存率',
+      value: statistics.overview.userRetentionRate,
+      suffix: '%',
+      precision: 1,
+      icon: <ExclamationCircleOutlined />,
+      color: '#13c2c2',
+    },
+  ] : [];
+
   return (
     <div className="dashboard-page">
       <Title level={2} style={{ marginBottom: 24 }}>
@@ -114,17 +160,7 @@ function DashboardPage() {
       {/* 图表区域 */}
       <Row gutter={16} style={{ marginTop: 24 }}>
         <Col span={12}>
-          <Card title="每日尝试趋势" style={{ height: 400 }}>
-            <div style={{ 
-              height: 300, 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              color: '#8c8c8c'
-            }}>
-              图表组件待实现
-            </div>
-          </Card>
+          <UserGrowthChart />
         </Col>
         <Col span={12}>
           <Card title="主题热度排行" style={{ height: 400 }}>
@@ -140,6 +176,9 @@ function DashboardPage() {
           </Card>
         </Col>
       </Row>
+
+      {/* API连接测试 */}
+      <APITestComponent />
 
       {/* 最近活动 */}
       <Card title="最近活动" style={{ marginTop: 24 }}>
